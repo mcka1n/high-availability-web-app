@@ -6,6 +6,10 @@ Parameters:
     EnvironmentName:
         Description: An environment name that will be prefixed to resource names
         Type: String
+
+    S3BucketName:
+        Description: Name of the S3 bucket where the code will be pulled for deployment
+        Type: String
 Resources:
   LBSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -45,27 +49,47 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
+  # S3Bucket:
+  #   Type: AWS::S3::Bucket
+  #   DeletionPolicy: Retain
+  #   Properties:
+  #     BucketName: "temporary-s3-bucket-name"
+  UdacityS3ReadOnlyEC2:
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "ec2.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
   ProfileWithRolesForOurApp:
     Type: AWS::IAM::InstanceProfile
     Properties: 
       Roles:
-        - UdacityS3ReadOnlyEC2
-  
+        - Ref: UdacityS3ReadOnlyEC2
+  WebAppLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
           apt-get install unzip awscli -y
           apt-get install apache2 -y
           systemctl start apache2.service
           cd /var/www/html
-          aws s3 cp s3://udacity-demo-1/udacity.zip .
-          unzip -o udacity.zip
-  WebAppLaunchConfig:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Properties:
-      IamInstanceProfile:
-      - Ref: ProfileWithRolesForOurApp
+          # aws s3 cp s3://temporary-s3-bucket-name/code-to-deploy.zip .
+          # unzip -o code-to-deploy.zip
+          echo "Udacity Demo Web Server Up and Running!" > index.html
       ImageId: ami-005bdb005fb00e791
-      KeyName: that-one
+      IamInstanceProfile: !Ref ProfileWithRolesForOurApp
+      # KeyName: that-one
       SecurityGroups:
       - Ref: WebServerSecGroup
       InstanceType: t3.medium
@@ -81,8 +105,8 @@ Resources:
           !Sub "${EnvironmentName}-PRIV-NETS"
       LaunchConfigurationName:
         Ref: WebAppLaunchConfig
-      MinSize: '3'
-      MaxSize: '5'
+      MinSize: '2'
+      MaxSize: '2'
       TargetGroupARNs:
       - Ref: WebAppTargetGroup
   WebAppLB:
