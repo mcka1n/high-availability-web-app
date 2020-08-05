@@ -1,6 +1,6 @@
 # high-availability-web-app
 
-AWS CloudFormation templates for the network and servers required for a highly available web application
+AWS CloudFormation templates for the network components, servers, and other resources (security roles, AutoScalingGroups, LoadBalancers, etc.) required for a highly available web application
 
 ## What's inside the templates?
 
