@@ -68,6 +68,29 @@ Resources:
   #   Properties: 
   #     Roles:
   #       - Ref: UdacityS3ReadOnlyEC2
+  UdacityS3ReadOnlyEC2:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns: 
+        - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "ec2.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+  ProfileWithRolesForOurApp: 
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: "/"
+      Roles: 
+        - !Ref UdacityS3ReadOnlyEC2
+  #
   WebAppLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -85,6 +108,7 @@ Resources:
           unzip -o udacity.zip
       ImageId: ami-003634241a8fcdec0
       KeyName: private-server-devops-key
+      IamInstanceProfile: !Ref ProfileWithRolesForOurApp
       SecurityGroups:
       - Ref: WebServerSecGroup
       InstanceType: t3.medium
