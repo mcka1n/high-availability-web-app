@@ -2,9 +2,5 @@
 	{
 		"ParameterKey": "EnvironmentName",
 		"ParameterValue": "HighAvailabilityWebAppUdacityProject"
-	},
-	{
-		"ParameterKey": "S3BucketName",
-		"ParameterValue": "UdacityProjectRepository"
 	}
 ]
