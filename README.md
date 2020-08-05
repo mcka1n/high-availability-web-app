@@ -13,6 +13,12 @@ route on the public subnets.
 * It deploys a pair of NAT Gateways (one in each AZ), 
 and default routes for them in the private subnets.
 
+## Infrastructure diagram
+
+We shouldn't start coding without clear view of what's the goal of the project isn't it? ... so in the same way, we shouldn't start building our Infrastructure As Code without an infrastructure diagram, here is the one I made for this project:
+
+![infra-diagram](https://github.com/mcka1n/high-availability-web-app/blob/master/infrastructure_diagram/ERMPHighAvailabilityWebAppProject.png)
+
 ## How to use it?
 
 I'm leveraging the `create.sh` and `update.sh` bash scripts provided by Udacity to save some time in every CloudFormation command.
