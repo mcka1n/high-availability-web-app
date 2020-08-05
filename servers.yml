@@ -49,30 +49,25 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
-  # S3Bucket:
-  #   Type: AWS::S3::Bucket
-  #   DeletionPolicy: Retain
-  #   Properties:
-  #     BucketName: "temporary-s3-bucket-name"
-  UdacityS3ReadOnlyEC2:
-    Type: "AWS::IAM::Role"
-    Properties: 
-      AssumeRolePolicyDocument: 
-        Version: "2012-10-17"
-        Statement: 
-          - 
-            Effect: "Allow"
-            Principal: 
-              Service: 
-                - "ec2.amazonaws.com"
-            Action: 
-              - "sts:AssumeRole"
-      Path: "/"
-  ProfileWithRolesForOurApp:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      Roles:
-        - Ref: UdacityS3ReadOnlyEC2
+  # UdacityS3ReadOnlyEC2:
+  #   Type: "AWS::IAM::Role"
+  #   Properties: 
+  #     AssumeRolePolicyDocument: 
+  #       Version: "2012-10-17"
+  #       Statement: 
+  #         - 
+  #           Effect: "Allow"
+  #           Principal: 
+  #             Service: 
+  #               - "ec2.amazonaws.com"
+  #           Action: 
+  #             - "sts:AssumeRole"
+  #     Path: "/"
+  # ProfileWithRolesForOurApp:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties: 
+  #     Roles:
+  #       - Ref: UdacityS3ReadOnlyEC2
   WebAppLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -82,14 +77,12 @@ Resources:
           apt-get update -y
           apt-get install unzip awscli -y
           apt-get install apache2 -y
+          systemctl enable httpd
           systemctl start apache2.service
           cd /var/www/html
-          # aws s3 cp s3://temporary-s3-bucket-name/code-to-deploy.zip .
-          # unzip -o code-to-deploy.zip
           echo "Udacity Demo Web Server Up and Running!" > index.html
-      ImageId: ami-005bdb005fb00e791
-      IamInstanceProfile: !Ref ProfileWithRolesForOurApp
-      # KeyName: that-one
+      ImageId: ami-003634241a8fcdec0
+      KeyName: private-server-devops-key
       SecurityGroups:
       - Ref: WebServerSecGroup
       InstanceType: t3.medium
